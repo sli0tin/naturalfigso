@@ -21,13 +21,13 @@
 </head>
 <body>
 
-<h1>نواقص مواعين فرع: <input type="text" id="branchName" placeholder="أدخل اسم الفرع هنا" /></h1>
+<h1> تحضير المواعين لفرع : <input type="text" id="branchName" placeholder="أدخل اسم الفرع هنا" /></h1>
 
 <input type="text" id="searchInput" placeholder="ابحث عن منتج..." />
 
 <table id="productsTable">
 <thead>
-<tr><th>المنتج</th><th>الكمية الناقصة</th></tr>
+<tr><th>المنتج</th><th>الكمية المطلوبة</th></tr>
 </thead>
 <tbody>
 <!-- سيتم إدخال المنتجات هنا برمجياً -->
@@ -221,7 +221,7 @@ searchInput.addEventListener("input", () => {
 sendBtn.addEventListener("click", () => {
   const branch = branchInput.value.trim();
   const inputs = [...document.querySelectorAll("#productsTable input[type=number]")];
-  let msg = `Missing utensils list for branch: ${branch}\n\n`;
+  let msg = `The requested products for branch : ${branch}\n\n`;
   inputs.forEach(input => {
     const qty = Number(input.value);
     if (qty > 0) {
