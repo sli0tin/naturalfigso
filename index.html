@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>نواقص مواعين فرع</title>
+<style>
+  body { font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif; background: #f7f7f7; margin: 0; padding: 20px; }
+  h1 { text-align: center; color: #2c3e50; }
+  label, input { font-size: 1rem; }
+  input[type="text"] { width: 100%; max-width: 400px; margin: 5px 0 15px 0; padding: 8px; border-radius: 5px; border: 1px solid #ccc; }
+  table { width: 100%; max-width: 900px; margin: 20px auto; border-collapse: collapse; background: #fff; }
+  th, td { padding: 10px; border-bottom: 1px solid #ddd; text-align: right; }
+  th { background-color: #3498db; color: white; }
+  input[type="number"] { width: 60px; padding: 5px; border-radius: 4px; border: 1px solid #aaa; text-align: center; }
+  #branchName { max-width: 300px; margin: 10px auto; display: block; }
+  #sendBtn { display: block; margin: 25px auto; background-color: #27ae60; color: white; border: none; padding: 12px 25px; font-size: 1.2rem; border-radius: 8px; cursor: pointer; }
+  #sendBtn:disabled { background-color: #95a5a6; cursor: not-allowed; }
+  #searchInput { margin: 15px auto; max-width: 400px; display: block; padding: 8px; border-radius: 5px; border: 1px solid #ccc; }
+</style>
+</head>
+<body>
+
+<h1>نواقص مواعين فرع: <input type="text" id="branchName" placeholder="أدخل اسم الفرع هنا" /></h1>
+
+<input type="text" id="searchInput" placeholder="ابحث عن منتج..." />
+
+<table id="productsTable">
+<thead>
+<tr><th>المنتج</th><th>الكمية الناقصة</th></tr>
+</thead>
+<tbody>
+<!-- سيتم إدخال المنتجات هنا برمجياً -->
+</tbody>
+</table>
+
+<button id="sendBtn" disabled>إرسال النواقص إلى الواتساب</button>
+
+<script>
+const products = [
+  {ar: "متبل الفاصوليا الخضراء بالعدس المبرعم", en: "Sprouted Lentil & Green and green beans Mutabbal"},
+  {ar: "متبل الفاصوليا الخضراء المبرعمة", en: "Sprouted Green Beans Mutabbal"},
+  {ar: "متبل زهرة وبروكلي ومورينجا", en: "Broccoli, Cauliflower & Moringa Mutabbal"},
+  {ar: "متبل باذنجان بالكينوا المبرعمة", en: "Grilled eggplant with sprouted quinoa Mutabbal"},
+  {ar: "فول مبرعم مصري + فول مبرعم سوري", en: "Sprouted Fava Beans (Egyptian & Syrian Style)"},
+  {ar: "فول مبرعم بخلطة المناعة", en: "Sprouted Fava Beans with Immunity boosting sauce"},
+  {ar: "الفول مبرعم بالمحمرة المتخمرة", en: "Sprouted Fava Beans wih Fermented Muhammarah"},
+  {ar: "فول مبرعم بالطريقة السورية بالطماطم", en: "Sprouted Fava Beans wih Tomato (Syrian style)"},
+  {ar: "حمص مبرعم بالمحمرة", en: "Sprouted Hummus with Fermented Muhammarah"},
+  {ar: "حمص مبرعم بخلطة المناعة", en: "Sprouted Hummus with Immunity boosting sauce"},
+  {ar: "الحمص المبرعم بالخضار", en: "Sprouted Hummus with Vegetables"},
+  {ar: "الحمص المبرعم بالشمندر", en: "Sprouted Hummus with Beet"},
+  {ar: "تلبينة الشعير بخلطة التين", en: "Figs & honey Barley Talbeenah"},
+  {ar: "تلبينة الشعير معمول التمر", en: "Dates Ma’mool Barley Talbeenah"},
+  {ar: "تلبينة الشعير بمعمول الشوفان", en: "Oats Ma’mool Barley Talbeenah"},
+  {ar: "تلبينة الشعير بالتمرية", en: "Dates Barley Talbeenah"},
+  {ar: "مياه معدنية", en: "Mineral water"},
+  {ar: "شراب كامبوتشا التفاح الاخضر", en: "Green apple kombucha"},
+  {ar: "شراب كامبوتشا بالتوت البري", en: "Cranberry kombucha"},
+  {ar: "شراب كامبوتشا بالزنجبيل", en: "Ginger Kombucha"},
+  {ar: "السلطة العربية بصلصة رفع المناعة", en: "Arabic Salad with immunity boosting sauce"},
+  {ar: "السلطة العربية بالبراعم الطازجة وصلصة رفع المناعة", en: "Arabic Salad & Fresh Sprouts with immunity boosting sauce"},
+  {ar: "سلطة الحمص المبرعم بالباذنجان المشوي", en: "Sprouted Chickpeas & grilled Eggplant Salad"},
+  {ar: "تبولة الشمندر بالكينوا المبرعمة", en: "Sprouted Quinoa with Beetroot Tabbouleh"},
+  {ar: "شوربة الكراعين مع الحمص المبرعم - حجم صغير", en: "Trotters soup with sprouted chickpeas - Small"},
+  {ar: "شوربة الكراعين مع الحمص المبرعم - حجم كبير", en: "Trotters soup with sprouted chickpeas - Large"},
+  {ar: "الحمص المبرعم السادة", en: "Sprouted Hummus"},
+  {ar: "الحمص المبرعم بالجزر وبخلطة الأعشاب", en: "Sprouted Hummus with Carrots & herbs"},
+  {ar: "شوربة عظام البقر بالخضار - حجم صغير", en: "Bone broth with Vegetable - Small"},
+  {ar: "شوربة عظام البقر السادة - حجم صغير", en: "Plain bone broth - Small"},
+  {ar: "شوربة عظام البقر بالخضار - حجم كبير", en: "Bone broth with Vegetable - large"},
+  {ar: "شوربة عظام البقر السادة - حجم كبير", en: "Plain bone broth - large"},
+  {ar: "شوربة الكراعين - حجم صغير", en: "Trotters soup - Small"},
+  {ar: "شوربة الكراعين - حجم كبير", en: "Trotters soup - Large"},
+  {ar: "تلبينة الشعير بالتفاح والدارسين", en: "Apple Cinnamon Barley Talbeenah"},
+  {ar: "تلبينة الشعير بالمكسرات", en: "Nuts Barley Talbeenah"},
+  {ar: "هردة حبة البركة", en: "Mineral water"},
+  {ar: "التين المنقوع بزيت الزيتون مع السمسم والزعتر والحبة السوداء", en: "Figs soaked in olive oil"},
+  {ar: "زيت الزيتون بحبة البركة المتخمرة", en: "Fermented Black seeds in Olive Oil"},
+  {ar: "الخلطة الشعبية للتخلص من آلام الركب والمفاصل", en: "Ancient heritage mixture to get rid of knee pain"},
+  {ar: "متبل الكوسا بالكينوا المبرعمة", en: "Grilled Zucchini Mutabbal sprouted quinoa"},
+  {ar: "فول مبرعم بالطريقة المصرية", en: "Sprouted Fava Beans (Egyptian style)"},
+  {ar: "حمص مبرعم بالكينوا المبرعمة", en: "Sprouted Hummus with Sprouted Quinoa"},
+  {ar: "تلبينة الشعير السادة", en: "Plain Barley Talbeenah"},
+  {ar: "شراب كامبوتشا الخوخ", en: "Peach kombucha"},
+  {ar: "تبولة الكينوا المبرعمة", en: "Sprouted Quinoa Tabbouleh"},
+  {ar: "فول مبرعم بالكينوا المبرعمة", en: "Sprouted Fava Beans with Sprouted Quinoa"},
+  {ar: "شوربة عظام الدجاج بالخضار - حجم كبير", en: "Vegetable Chicken bone broth - large"},
+  {ar: "تلبينة الشعير مع بذور الكتان و حبوب الشيا", en: "Barley Talbeenah With flaxseed and chia seeds"},
+  {ar: "سلطة الزيتون", en: "Olives salad"},
+  {ar: "لبنة كفير الماعز السادة", en: "Goat kefir labneh with Zaatter"},
+  {ar: "لبنة كفير البقر بالزعتر", en: "Cow kefir labneh with Zaatter"},
+  {ar: "لبنة كفير الماعز السادة", en: "Plain goat kefir labneh"},
+  {ar: "لبنة كفير البقر السادة", en: "Plain cow kefir labneh"},
+  {ar: "جبن الكاجو بالبكتيريا المفيدة، منتج نباتي خالي من منتجات الألبان الحيوانية", en: "Probiotic Cashew Cheese, Dairy free"},
+  {ar: "جبن اللوز النباتي بالمحمرة المتخمرة، منتج نباتي، خالي من منتجات الألبان الحيوانية", en: "Veggie cheese with fermented Muhammarah, Dairy-free"},
+  {ar: "جبنة نابلسية بالزيتون والاعشاب", en: "Nabulsia Cheese with Olives & Herbs"},
+  {ar: "جبنة نابلسية بالمحمرة والاعشاب", en: "Nabulsia Cheese with Muhammarah & Herbs"},
+  {ar: "جبنة نابلسية بخلطة الباذنجان", en: "Nabulsia cheese with Eggplant"},
+  {ar: "جبنة نابلسية بالفواكة المجففة", en: "Nabulsia Cheese with dried fruits"},
+  {ar: "هريسة الجبن النابلسي بالزيتون والنعناع", en: "Smashed Nabulsia Cheese with Olives & Mint"},
+  {ar: "مصل لبن", en: "Whey protein"},
+  {ar: "لبن كفير البقر", en: "Cow kefir Laban"},
+  {ar: "لبن كفير الماعز", en: "Goat kefir Laban"},
+  {ar: "روبة كفير البقر", en: "Cow kefir yogurt"},
+  {ar: "روبة كفير الماعز", en: "Goat kefir yogurt"},
+  {ar: "خضار مشكلة حارة متخمرة بالملح البحري والماء الخالي من الشوائب", en: "Fermented Mix Vegetables (Probiotic Food)"},
+  {ar: "مخمر الفجل بالملح البحري والماء الخالي من الشوائب", en: "Fermented Radish (Probiotic Food)"},
+  {ar: "مخمر الجزر بالملح البحري والماء الخالي من الشوائب", en: "Fermented Carrots (Probiotic Food)"},
+  {ar: "مخمر الخيار بالملح البحري والماء الخالي من الشوائب", en: "Fermented Cucumbers (Probiotic Food)"},
+  {ar: "مخمر القرنبيط بالملح البحري والماء الخالي من الشوائب", en: "Fermented Gauliflower (Probiotic Food)"},
+  {ar: "محمرة حارة (فلفل حار متخمر)", en: "Fermented chili (Muhammarah)"},
+  {ar: "محمرة باردة (فلفل بارد متخمر)", en: "Fermented bell Pepper"},
+  {ar: "مخمر الملفوف الأبيض بالملح البحري والماء الخالي من الشوائب", en: "white Fermented Cabbage (Probiotic Food)"},
+  {ar: "مخمر الملفوف الأحمر بالملح البحري والماء الخالي من الشوائب", en: "Red Fermented Cabbage (Probiotic Food)"},
+  {ar: "مخمر الشمندر بالملح البحري والماء الخالي من الشوائب", en: "Fermented Beetroot (Probiotic Food)"},
+  {ar: "لبنة كفير (البقر/الماعز) بالنعناع", en: "Kefir labneh with Mint (cow/goat)"},
+  {ar: "لبنة كفير (البقر/الماعز) بالريحان", en: "Kefir labneh with basil (cow/goat)"},
+  {ar: "لبنة كفير (البقر/الماعز) بالسماق", en: "Kefir labneh with Sumac (cow/goat)"},
+  {ar: "لبنة كفير (البقر/الماعز) بالمحمرة", en: "Kefir labneh with muhammarah (cow/goat)"},
+  {ar: "لبنة كفير (البقر/الماعز) بالزيتون المتخمرة", en: "Kefir labneh with olives (cow/goat)"},
+  {ar: "لبنة كفير (البقر/الماعز) بالزعتر", en: "Kefir labneh with Za`atter (cow/goat)"},
+  {ar: "الثوم الأسود المتخمر", en: "Black Garlic - Fermented Super food"},
+  {ar: "صلصة الثوم العضوي بالزنجبيل والكركم", en: "Garlic paste with ginger & turmeric"},
+  {ar: "صلصة الثوم العضوي بالريحان والنعناع", en: "Garlic paste with basil and mint"},
+  {ar: "صلصة الثوم العضوي بالمحمرة المتخمرة", en: "Garlic paste with muhammarah"},
+  {ar: "صلصة الثوم العضوي بالزنجبيل", en: "Garlic paste with ginger"},
+  {ar: "الخلطة التراثية لتقوية العظام", en: "Traditional mixture for bone health"},
+  {ar: "مربى البرتقال بالزنجبيل الخالية من السكر", en: "Orange Ginger Jam"},
+  {ar: "مربى القراصيا بالزنجبيل الخالية من السكر", en: "Prunes Ginger Jam"},
+  {ar: "مربى التين بالزنجبيل الخالية من السكر", en: "figs Ginger Jam"},
+  {ar: "مربى المشمش بالزنجبيل الخالية من السكر", en: "Apricot Ginger Jam"},
+  {ar: "مربى القرع بالزنجبيل الخالية من السكر", en: "Pumpkin Ginger Jam"},
+  {ar: "مخمر الزنجبيل بالمحمرة المتخمرة والماء الخالي من الشوائب", en: "Fermented Ginger & Fermented Muhammarah"},
+  {ar: "مخمر الزنجبيل بالعسل والماء الخالي من الشوائب", en: "Honey Fermented Ginger"},
+  {ar: "مخمر الثوم بالمحمرة المتخمرة والماء الخالي من الشوائب", en: "Fermented Garlic & Fermented Muhammarah"},
+  {ar: "مخمر الثوم بالعسل والماء الخالي من الشوائب", en: "Honey Fermented Garlic"},
+  {ar: "مخمر الثوم بالملح البحري والماء الخالي من الشوائب", en: "Fermented Garlic"},
+  {ar: "الزيتون الفلسطيني السادة", en: "Palestinian plain olives"},
+  {ar: "الزيتون الفلسطيني بالزعتر", en: "Palestinian Olives with Thyme"},
+  {ar: "الزيتون الفلسطيني بالمحمرة", en: "Palestinian Olives with Muhammarah"},
+  {ar: "الزيتون الفلسطيني بدبس الرمان", en: "Palestinian olives with pomegranate molasses"},
+  {ar: "جبنة ماعز كويتي", en: "Kuwaiti goat Cheese"},
+  {ar: "حليب ابل كويتي", en: "Kuwaiti camel milk"},
+  {ar: "لبن ماعز كويتي", en: "Kuwaiti goat laban"},
+  {ar: "بيض عضوي", en: "Natural eggs"},
+  {ar: "حمص الماش المبرعم (كيتو)", en: "Mung Beans Sprouts Hummus (keto)"},
+  {ar: "حمص الكوسة (كيتو)", en: "Zucchini Hummus (keto diet)"},
+  {ar: "مربى التوت الأحمر الخالي من السكر", en: "Sugar free raspberry jam"},
+  {ar: "مربى التوت الأزرق الخالي من السكر", en: "Sugar free blieberry jam"},
+  {ar: "أجار الجزر الهندي", en: "Carrot indian pickles"},
+  {ar: "ورق عنب بالزهرة (كيتو)", en: "Cauliflower grape leaves (Keto)"},
+  {ar: "ورق العنب بالكينوا", en: "Quinoa grape leaves"},
+  {ar: "ورق العنب التركي", en: "Turkish grape leaves"},
+  {ar: "أجار الليمون الهندي", en: "Lemon indian pickles"},
+  {ar: "حليب الشكولاتة", en: "Chocolate milk"},
+  {ar: "حليب الفراولة", en: "Strawberry milk"},
+  {ar: "كبة نظام الكيتو المشكلة", en: "Keto-Diet mixed kibbeh"},
+  {ar: "كبة الرز الأسمر الخالي من الجلوتين المشكلة", en: "Browm rice Gluten-Free mixed kibbeh"},
+  {ar: "كبة الحبوب الأربعة المشكلة", en: "4 grains mixed kibbeh"},
+  {ar: "سمبوسة نظام الكيتو المشكلة", en: "Keto-Diet mixed Samosa"},
+  {ar: "سمبوسة الرز الأسمر الخالي من الجلوتين المشكلة", en: "Browm rice Gluten-Free mixed Samosa"},
+  {ar: "سمبوسة الحبوب الكاملة المشكلة", en: "Whole grains mixed Samosa"},
+  {ar: "كرواسو الحبوب الكاملة والخميرة الطبيعية بالجبن النابلسي (درزن)", en: "Sourdough Croissants stuffed with Nabulsi cheese (Dozen)"},
+  {ar: "كرواسو الحبوب الكاملة والخميرة الطبيعية بالزعتر (درزن)", en: "Sourdough Croissants stuffed with Za’ater (Dozen)"},
+  {ar: "سمبوسة اللحم / الدجاج / الجبن النابلسي", en: "Meat/Chicken/Nabulsi Cheese Samosa"},
+  {ar: "فلافل نظام الكيتو", en: "Keto-Diet falafel"},
+  {ar: "الفلافل المبرعمة الخالية من الجلوتين", en: "Gluten-free sprouted falafel"},
+  {ar: "عصير عشبة القمح المثلج بالسلاري والخيار", en: "Wheat grass frozen juice with celery & cucumber"},
+  {ar: "عصير عشبة الشعير المثلج بالسلاري والخيار", en: "Barley grass frozen juice with celery & cucumber"},
+  {ar: "عصير نقيع الشعير بالدارسين والزنجبيل والليمون", en: "Soaked barley juice with cinnamon, ginger, and lemon"},
+  {ar: "عصير عشبة الشعير المثلج بالشمندر", en: "Barley grass frozen juice with beetroot"},
+  {ar: "عصير عشبة القمح المثلج بالشمندر", en: "Wheat grass frozen juice with beetroot"}
+];
+
+// توليد جدول المنتجات
+const tbody = document.querySelector("#productsTable tbody");
+products.forEach(({ar}, i) => {
+  const tr = document.createElement("tr");
+  tr.innerHTML = `
+    <td>${ar}</td>
+    <td><input type="number" min="0" value="0" data-index="${i}" /></td>
+  `;
+  tbody.appendChild(tr);
+});
+
+// تفعيل زر الإرسال فقط عند وجود اسم فرع وادخال رقم أكبر من صفر في أحد الحقول
+const branchInput = document.getElementById("branchName");
+const sendBtn = document.getElementById("sendBtn");
+
+function checkEnableSend() {
+  const branchVal = branchInput.value.trim();
+  if (!branchVal) {
+    sendBtn.disabled = true;
+    return;
+  }
+  const nums = [...document.querySelectorAll("#productsTable input[type=number]")];
+  const hasNumber = nums.some(input => Number(input.value) > 0);
+  sendBtn.disabled = !hasNumber;
+}
+
+branchInput.addEventListener("input", checkEnableSend);
+document.querySelectorAll("#productsTable input[type=number]").forEach(input => {
+  input.addEventListener("input", () => {
+    if (input.value < 0) input.value = 0;
+    checkEnableSend();
+  });
+});
+
+// خاصية البحث
+const searchInput = document.getElementById("searchInput");
+searchInput.addEventListener("input", () => {
+  const term = searchInput.value.trim().toLowerCase();
+  tbody.querySelectorAll("tr").forEach(row => {
+    const text = row.cells[0].textContent.toLowerCase();
+    row.style.display = text.includes(term) ? "" : "none";
+  });
+});
+
+// إرسال البيانات إلى واتساب مع تحويلها إلى اللغة الإنجليزية فقط للمنتجات التي لديها أرقام > 0
+sendBtn.addEventListener("click", () => {
+  const branch = branchInput.value.trim();
+  const inputs = [...document.querySelectorAll("#productsTable input[type=number]")];
+  let msg = `Missing utensils list for branch: ${branch}\n\n`;
+  inputs.forEach(input => {
+    const qty = Number(input.value);
+    if (qty > 0) {
+      const idx = Number(input.dataset.index);
+      const productEn = products[idx].en;
+      msg += `${productEn}: ${qty}\n`;
+    }
+  });
+
+  const encodedMsg = encodeURIComponent(msg);
+  const waNumber = "639127105760"; // بدون + أو مسافات، بصيغة دولية للواتساب
+  const waLink = `https://wa.me/${waNumber}?text=${encodedMsg}`;
+  window.open(waLink, "_blank");
+});
+</script>
+
+</body>
+</html>
