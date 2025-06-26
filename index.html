@@ -289,7 +289,7 @@ sendBtn.addEventListener("click", () => {
   }
 
   // رسالة الواتساب باللغتين العربية والإنجليزية ومرقمة
-  let message = `Branch: ${branch}\nMissing products:\n`;
+  let message = `Branch: ${branch}\nRequested products:\n`;
   selectedProducts.forEach((item, i) => {
     message += `${i+1}. ${products[item.index].ar} / ${products[item.index].en} - Quantity: ${item.qty}\n`;
   });
