@@ -288,16 +288,17 @@ sendBtn.addEventListener("click", () => {
     return;
   }
 
-  // رسالة الواتساب باللغتين العربية والإنجليزية ومرقمة
-  let message = `Branch: ${branch}\nRequested products:\n`;
-  selectedProducts.forEach((item, i) => {
-    message += `${i+1}. ${products[item.index].ar} / ${products[item.index].en} - Quantity: ${item.qty}\n`;
-  });
+// رسالة الواتساب باللغتين العربية والإنجليزية بنقاط • والكتابة من اليسار لليمين
+let message = `Branch: ${branch}\nRequested products:\n`;
+selectedProducts.forEach((item) => {
+  message += `• ${products[item.index].ar} - ${products[item.index].en} / *Quantity:* ${item.qty}\n`;
+});
 
-  const phoneNumber = "639127105760";
-  const url = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
+const phoneNumber = "96555941040";
+const url = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
 
-  window.open(url, "_blank");
+window.open(url, "_blank");
+
 });
 
 const searchInput = document.getElementById("searchInput");
