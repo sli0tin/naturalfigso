@@ -7,40 +7,26 @@
 <style>
   body { font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif; background: #f7f7f7; margin: 0; padding: 20px; }
   h1 { text-align: center; color: #2c3e50; }
-  label, input { font-size: 1rem; }
-  input[type="text"] { width: 100%; max-width: 400px; margin: 5px 0 15px 0; padding: 8px; border-radius: 5px; border: 1px solid #ccc; }
+  label, select { font-size: 1rem; }
+  select, input[type="text"] { width: 100%; max-width: 400px; margin: 5px 0 15px 0; padding: 8px; border-radius: 5px; border: 1px solid #ccc; }
   table { width: 100%; max-width: 900px; margin: 20px auto; border-collapse: collapse; background: #fff; }
   th, td { padding: 10px; border-bottom: 1px solid #ddd; text-align: right; }
   th { background-color: #3498db; color: white; }
-  input[type="number"] { width: 60px; padding: 5px; border-radius: 4px; border: 1px solid #aaa; text-align: center; }
+  select.quantity { width: 80px; padding: 5px; border-radius: 4px; border: 1px solid #aaa; }
   #branchName { max-width: 300px; margin: 10px auto; display: block; }
-
-  /* تعديل زر الإرسال ليكون عائم */
-  #sendBtn {
-    position: fixed;
-    bottom: 20px;
-    right: 20px;
-    z-index: 1000;
-    background-color: #27ae60;
-    color: white;
-    border: none;
-    padding: 12px 25px;
-    font-size: 1.2rem;
-    border-radius: 30px;
-    cursor: pointer;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
-  }
-  #sendBtn:disabled {
-    background-color: #95a5a6;
-    cursor: not-allowed;
-  }
-
+  #sendBtn { display: block; margin: 25px auto; background-color: #27ae60; color: white; border: none; padding: 12px 25px; font-size: 1.2rem; border-radius: 8px; cursor: pointer; }
+  #sendBtn:disabled { background-color: #95a5a6; cursor: not-allowed; }
   #searchInput { margin: 15px auto; max-width: 400px; display: block; padding: 8px; border-radius: 5px; border: 1px solid #ccc; }
 </style>
 </head>
 <body>
 
-<h1> تحضير المواعين لفرع : <input type="text" id="branchName" placeholder="أدخل اسم الفرع هنا" /></h1>
+<h1>تحضير المواعين لفرع:</h1>
+<select id="branchName">
+  <option value="">اختر الفرع</option>
+  <option value="Yarmook">Yarmook</option>
+  <option value="Abu alhasaniya">Abu alhasaniya</option>
+</select>
 
 <input type="text" id="searchInput" placeholder="ابحث عن منتج..." />
 
@@ -49,7 +35,6 @@
 <tr><th>المنتج</th><th>الكمية المطلوبة</th></tr>
 </thead>
 <tbody>
-<!-- سيتم إدخال المنتجات هنا برمجياً -->
 </tbody>
 </table>
 
@@ -194,78 +179,64 @@ const products = [
   {ar: "عصير عشبة القمح المثلج بالشمندر", en: "Wheat grass frozen juice with beetroot"}
 ];
 
-// دالة إنشاء صفوف الجدول للمنتجات
-function createProductRows() {
-  const tbody = document.querySelector("#productsTable tbody");
-  tbody.innerHTML = "";
-  products.forEach((p, index) => {
-    const tr = document.createElement("tr");
-    const tdName = document.createElement("td");
-    tdName.textContent = `${p.ar} / ${p.en}`;
-    const tdQty = document.createElement("td");
-    const inputQty = document.createElement("input");
-    inputQty.type = "number";
-    inputQty.min = "0";
-    inputQty.value = "";
-    inputQty.placeholder = "0";
-    inputQty.dataset.index = index;
-    inputQty.addEventListener("input", validateForm);
-    tdQty.appendChild(inputQty);
-    tr.appendChild(tdName);
-    tr.appendChild(tdQty);
-    tbody.appendChild(tr);
-  });
-}
-
-// تفعيل زر الإرسال إذا هناك كمية واحدة على الأقل
-function validateForm() {
-  const inputs = document.querySelectorAll("#productsTable tbody input[type=number]");
-  let enabled = false;
-  inputs.forEach(input => {
-    if (input.value && Number(input.value) > 0) {
-      enabled = true;
-    }
-  });
-  document.getElementById("sendBtn").disabled = !enabled;
-}
-
-// فلترة البحث
-document.getElementById("searchInput").addEventListener("input", function() {
-  const val = this.value.trim();
-  const rows = document.querySelectorAll("#productsTable tbody tr");
-  rows.forEach(row => {
-    const text = row.cells[0].textContent;
-    if (text.includes(val)) {
-      row.style.display = "";
-    } else {
-      row.style.display = "none";
-    }
-  });
-});
-
-// إرسال رسالة الواتساب
-document.getElementById("sendBtn").addEventListener("click", function() {
-  const branch = document.getElementById("branchName").value.trim();
-  if (!branch) {
-    alert("يرجى إدخال اسم الفرع أولاً");
-    return;
+const tbody = document.querySelector("#productsTable tbody");
+products.forEach(({ar}, i) => {
+  const tr = document.createElement("tr");
+  const select = document.createElement("select");
+  select.classList.add("quantity");
+  select.dataset.index = i;
+  for (let j = 0; j <= 100; j++) {
+    const option = document.createElement("option");
+    option.value = j;
+    option.textContent = j;
+    select.appendChild(option);
   }
-  const inputs = document.querySelectorAll("#productsTable tbody input[type=number]");
-  let message = `نواقص المواعين لفرع: ${branch}\n\n`;
-  inputs.forEach(input => {
-    const qty = input.value.trim();
-    if (qty && Number(qty) > 0) {
-      const i = input.dataset.index;
-      message += `${products[i].ar} / ${products[i].en}: ${qty}\n`;
-    }
-  });
-  const encodedMsg = encodeURIComponent(message);
-  const whatsappUrl = `https://wa.me/?text=${encodedMsg}`;
-  window.open(whatsappUrl, "_blank");
+  tr.innerHTML = `<td>${ar}</td>`;
+  const td = document.createElement("td");
+  td.appendChild(select);
+  tr.appendChild(td);
+  tbody.appendChild(tr);
 });
 
-// بدء العمل
-createProductRows();
+const branchInput = document.getElementById("branchName");
+const sendBtn = document.getElementById("sendBtn");
+function checkEnableSend() {
+  const branchVal = branchInput.value.trim();
+  if (!branchVal) return sendBtn.disabled = true;
+  const selects = [...document.querySelectorAll(".quantity")];
+  const hasQty = selects.some(s => Number(s.value) > 0);
+  sendBtn.disabled = !hasQty;
+}
+
+branchInput.addEventListener("change", checkEnableSend);
+document.querySelectorAll(".quantity").forEach(select => select.addEventListener("change", checkEnableSend));
+
+document.getElementById("searchInput").addEventListener("input", e => {
+  const term = e.target.value.trim().toLowerCase();
+  tbody.querySelectorAll("tr").forEach(row => {
+    const text = row.cells[0].textContent.toLowerCase();
+    row.style.display = text.includes(term) ? "" : "none";
+  });
+});
+
+sendBtn.addEventListener("click", () => {
+  const branch = branchInput.value.trim();
+  const selects = [...document.querySelectorAll(".quantity")];
+  let msg = `The requested products for branch: ${branch}\n\n`;
+  let count = 1;
+  selects.forEach(select => {
+    const qty = Number(select.value);
+    if (qty > 0) {
+      const idx = Number(select.dataset.index);
+      const product = products[idx].en;
+      msg += `${count}- ${product}: ${qty}\n`;
+      count++;
+    }
+  });
+  const encoded = encodeURIComponent(msg);
+  const link = `https://wa.me/639127105760?text=${encoded}`;
+  window.open(link, "_blank");
+});
 </script>
 
 </body>
