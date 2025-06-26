@@ -57,8 +57,8 @@
 <h1>تحضير المواعين لفرع:</h1>
 <select id="branchSelect" aria-label="اختيار الفرع">
   <option value="">-- اختر الفرع --</option>
-  <option value="Yarmook">Yarmook</option>
-  <option value="Abu alhasaniya">Abu alhasaniya</option>
+  <option value="*Yarmook*">Yarmook</option>
+  <option value="*Abu alhasaniya*">Abu alhasaniya</option>
 </select>
 
 <input type="text" id="searchInput" placeholder="ابحث عن منتج..." aria-label="بحث عن منتج" />
@@ -289,12 +289,12 @@ sendBtn.addEventListener("click", () => {
   }
 
 // رسالة الواتساب باللغتين العربية والإنجليزية بنقاط • والكتابة من اليسار لليمين
-let message = `Branch: ${branch}\nRequested products:\n`;
+let message = ` *Branch:* ${branch}\nRequested products:\n`;
 selectedProducts.forEach((item) => {
   message += `• ${products[item.index].ar} - ${products[item.index].en} / *Quantity:* ${item.qty}\n`;
 });
 
-const phoneNumber = "639127105760";
+const phoneNumber = "96555941040";
 const url = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
 
 window.open(url, "_blank");
