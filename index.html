@@ -7,12 +7,12 @@
 <style>
   body { font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif; background: #f7f7f7; margin: 0; padding: 20px; }
   h1 { text-align: center; color: #2c3e50; }
-  label, input { font-size: 1rem; }
-  input[type="text"] { width: 100%; max-width: 400px; margin: 5px 0 15px 0; padding: 8px; border-radius: 5px; border: 1px solid #ccc; }
+  label, select { font-size: 1rem; }
+  select, input[type="text"] { width: 100%; max-width: 400px; margin: 5px 0 15px 0; padding: 8px; border-radius: 5px; border: 1px solid #ccc; }
   table { width: 100%; max-width: 900px; margin: 20px auto; border-collapse: collapse; background: #fff; }
   th, td { padding: 10px; border-bottom: 1px solid #ddd; text-align: right; }
   th { background-color: #3498db; color: white; }
-  input[type="number"] { width: 60px; padding: 5px; border-radius: 4px; border: 1px solid #aaa; text-align: center; }
+  select.quantity { width: 80px; padding: 5px; border-radius: 4px; border: 1px solid #aaa; }
   #branchName { max-width: 300px; margin: 10px auto; display: block; }
   #sendBtn { display: block; margin: 25px auto; background-color: #27ae60; color: white; border: none; padding: 12px 25px; font-size: 1.2rem; border-radius: 8px; cursor: pointer; }
   #sendBtn:disabled { background-color: #95a5a6; cursor: not-allowed; }
@@ -21,7 +21,12 @@
 </head>
 <body>
 
-<h1> تحضير المواعين لفرع : <input type="text" id="branchName" placeholder="أدخل اسم الفرع هنا" /></h1>
+<h1>تحضير المواعين لفرع:</h1>
+<select id="branchName">
+  <option value="">اختر الفرع</option>
+  <option value="Yarmook">Yarmook</option>
+  <option value="Abu alhasaniya">Abu alhasaniya</option>
+</select>
 
 <input type="text" id="searchInput" placeholder="ابحث عن منتج..." />
 
@@ -30,7 +35,6 @@
 <tr><th>المنتج</th><th>الكمية المطلوبة</th></tr>
 </thead>
 <tbody>
-<!-- سيتم إدخال المنتجات هنا برمجياً -->
 </tbody>
 </table>
 
@@ -172,69 +176,63 @@ const products = [
   {ar: "عصير عشبة الشعير المثلج بالشمندر", en: "Barley grass frozen juice with beetroot"},
   {ar: "عصير عشبة القمح المثلج بالشمندر", en: "Wheat grass frozen juice with beetroot"}
 ];
-
-// توليد جدول المنتجات
 const tbody = document.querySelector("#productsTable tbody");
 products.forEach(({ar}, i) => {
   const tr = document.createElement("tr");
-  tr.innerHTML = `
-    <td>${ar}</td>
-    <td><input type="number" min="0" value="0" data-index="${i}" /></td>
-  `;
+  const select = document.createElement("select");
+  select.classList.add("quantity");
+  select.dataset.index = i;
+  for (let j = 0; j <= 100; j++) {
+    const option = document.createElement("option");
+    option.value = j;
+    option.textContent = j;
+    select.appendChild(option);
+  }
+  tr.innerHTML = `<td>${ar}</td>`;
+  const td = document.createElement("td");
+  td.appendChild(select);
+  tr.appendChild(td);
   tbody.appendChild(tr);
 });
 
-// تفعيل زر الإرسال فقط عند وجود اسم فرع وادخال رقم أكبر من صفر في أحد الحقول
 const branchInput = document.getElementById("branchName");
 const sendBtn = document.getElementById("sendBtn");
-
 function checkEnableSend() {
   const branchVal = branchInput.value.trim();
-  if (!branchVal) {
-    sendBtn.disabled = true;
-    return;
-  }
-  const nums = [...document.querySelectorAll("#productsTable input[type=number]")];
-  const hasNumber = nums.some(input => Number(input.value) > 0);
-  sendBtn.disabled = !hasNumber;
+  if (!branchVal) return sendBtn.disabled = true;
+  const selects = [...document.querySelectorAll(".quantity")];
+  const hasQty = selects.some(s => Number(s.value) > 0);
+  sendBtn.disabled = !hasQty;
 }
 
-branchInput.addEventListener("input", checkEnableSend);
-document.querySelectorAll("#productsTable input[type=number]").forEach(input => {
-  input.addEventListener("input", () => {
-    if (input.value < 0) input.value = 0;
-    checkEnableSend();
-  });
-});
+branchInput.addEventListener("change", checkEnableSend);
+document.querySelectorAll(".quantity").forEach(select => select.addEventListener("change", checkEnableSend));
 
-// خاصية البحث
-const searchInput = document.getElementById("searchInput");
-searchInput.addEventListener("input", () => {
-  const term = searchInput.value.trim().toLowerCase();
+document.getElementById("searchInput").addEventListener("input", e => {
+  const term = e.target.value.trim().toLowerCase();
   tbody.querySelectorAll("tr").forEach(row => {
     const text = row.cells[0].textContent.toLowerCase();
     row.style.display = text.includes(term) ? "" : "none";
   });
 });
 
-// إرسال البيانات إلى واتساب مع تحويلها إلى اللغة الإنجليزية فقط للمنتجات التي لديها أرقام > 0
 sendBtn.addEventListener("click", () => {
   const branch = branchInput.value.trim();
-  const inputs = [...document.querySelectorAll("#productsTable input[type=number]")];
-  let msg = `The requested products for branch : ${branch}\n\n`;
-  inputs.forEach(input => {
-    const qty = Number(input.value);
+  const selects = [...document.querySelectorAll(".quantity")];
+  let msg = `The requested products for branch: ${branch}\n\n`;
+  let count = 1;
+  selects.forEach(select => {
+    const qty = Number(select.value);
     if (qty > 0) {
-      const idx = Number(input.dataset.index);
-      const productEn = products[idx].en;
-      msg += `${productEn}: ${qty}\n`;
+      const idx = Number(select.dataset.index);
+      const product = products[idx].en;
+      msg += `${count}- ${product}: ${qty}\n`;
+      count++;
     }
   });
-
-  const encodedMsg = encodeURIComponent(msg);
-  const waNumber = "639127105760"; // بدون + أو مسافات، بصيغة دولية للواتساب
-  const waLink = `https://wa.me/${waNumber}?text=${encodedMsg}`;
-  window.open(waLink, "_blank");
+  const encoded = encodeURIComponent(msg);
+  const link = `https://wa.me/639127105760?text=${encoded}`;
+  window.open(link, "_blank");
 });
 </script>
 
