@@ -9,7 +9,7 @@
   h1 { text-align: center; color: #2c3e50; }
   label, select { font-size: 1rem; }
   table { width: 100%; max-width: 900px; margin: 20px auto; border-collapse: collapse; background: #fff; }
-  th, td { padding: 10px; border-bottom: 1px solid #ddd; text-align: right; }
+  th, td { padding: 10px; border-bottom: 1px solid #ddd; text-align: right; vertical-align: middle; }
   th { background-color: #3498db; color: white; }
   select.quantity-select { width: 80px; padding: 5px; border-radius: 4px; border: 1px solid #aaa; text-align: center; }
   #branchSelect { max-width: 300px; margin: 10px auto 0 auto; display: block; padding: 8px; border-radius: 5px; border: 1px solid #ccc; font-size: 1rem; }
@@ -39,6 +39,16 @@
     border-radius: 5px;
     border: 1px solid #ccc;
     font-size: 1rem;
+  }
+  .product-name {
+    display: flex;
+    flex-direction: column;
+    text-align: right;
+  }
+  .product-en {
+    font-size: 0.85rem;
+    color: #666;
+    font-style: italic;
   }
 </style>
 </head>
@@ -203,7 +213,6 @@ const products = [
   {ar: "عصير عشبة القمح المثلج بالشمندر", en: "Wheat grass frozen juice with beetroot"}
 ];
 
-// تعبئة الجدول
 const tbody = document.querySelector("#productsTable tbody");
 
 function createQuantityOptions() {
@@ -219,7 +228,10 @@ function populateTable() {
   products.forEach((prod, index) => {
     const tr = document.createElement("tr");
     tr.innerHTML = `
-      <td>${prod.ar}</td>
+      <td class="product-name">
+        <span>${prod.ar}</span>
+        <span class="product-en">${prod.en}</span>
+      </td>
       <td>
         <select class="quantity-select" data-index="${index}" aria-label="اختر كمية المنتج ${prod.ar}">
           ${createQuantityOptions()}
@@ -232,7 +244,6 @@ function populateTable() {
 
 populateTable();
 
-// تمكين الزر إذا تم اختيار فرع وكمية غير صفر لأي منتج
 const sendBtn = document.getElementById("sendBtn");
 const branchSelect = document.getElementById("branchSelect");
 
@@ -259,7 +270,6 @@ tbody.addEventListener("change", e => {
   }
 });
 
-// زر الإرسال
 sendBtn.addEventListener("click", () => {
   const branch = branchSelect.value;
   if (!branch) {
@@ -278,34 +288,32 @@ sendBtn.addEventListener("click", () => {
     return;
   }
 
-  // رسالة الواتساب بالإنجليزي ومرقمة
+  // رسالة الواتساب باللغتين العربية والإنجليزية ومرقمة
   let message = `Branch: ${branch}\nMissing products:\n`;
   selectedProducts.forEach((item, i) => {
-    message += `${i+1}. ${products[item.index].en} - Quantity: ${item.qty}\n`;
+    message += `${i+1}. ${products[item.index].ar} / ${products[item.index].en} - Quantity: ${item.qty}\n`;
   });
 
-  // رابط الواتساب مع ترميز الرسالة
-  const phoneNumber = "966540920420"; // رقم الواتساب بدون +
+  const phoneNumber = "639127105760";
   const url = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
 
   window.open(url, "_blank");
 });
 
-// بحث في المنتجات
 const searchInput = document.getElementById("searchInput");
 searchInput.addEventListener("input", () => {
   const filter = searchInput.value.trim().toLowerCase();
   const rows = tbody.querySelectorAll("tr");
   rows.forEach((row, i) => {
-    const productName = products[i].ar.toLowerCase();
-    if(productName.includes(filter)) {
+    const productAr = products[i].ar.toLowerCase();
+    const productEn = products[i].en.toLowerCase();
+    if(productAr.includes(filter) || productEn.includes(filter)) {
       row.style.display = "";
     } else {
       row.style.display = "none";
     }
   });
 });
-
 </script>
 </body>
 </html>
