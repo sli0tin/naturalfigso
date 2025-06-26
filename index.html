@@ -291,7 +291,7 @@ sendBtn.addEventListener("click", () => {
 // رسالة الواتساب باللغتين العربية والإنجليزية بنقاط • والكتابة من اليسار لليمين
 let message = ` *Branch:* ${branch}\nRequested products:\n`;
 selectedProducts.forEach((item) => {
-  message += `• ${products[item.index].ar} - ${products[item.index].en} *[Quantity: ${item.qty}\n]*`;
+  message += `• ${products[item.index].ar} - ${products[item.index].en} *[Quantity: ${item.qty}]* \n`;
 });
 
 const phoneNumber = "96555941040";
